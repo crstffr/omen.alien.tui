@@ -1,0 +1,13 @@
+{
+  "name": "omen.alien.tui",
+  "version": "1.0.0",
+  "description": "Ωmen Alien: Text UI",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "blessed": "0.1.81"
+  }
+}
