@@ -126,12 +126,36 @@ let console = {
 let zoom = 1;
 let start = 0;
 
+let track = {
+    16: require('./test-16.json'),
+    24: require('./test-24.json'),
+    32: require('./test-32.json'),
+    64: require('./test-64.json'),
+    128: require('./test-128.json')
+};
+
 function renderWaveform() {
 
+    let rows = new Array(waveform.height).fill(new Array(waveform.width).fill(0));
+
+    let res = 0;
+
+    if (zoom < 8) {
+        res = 128;
+    } else if (zoom < 24) {
+        res = 64;
+    } else if (zoom < 64) {
+        res = 32;
+    } else if (zoom < 96) {
+        res = 24;
+    } else if (zoom >= 96) {
+        res = 16;
+    }
+
     let content = "";
-    let data = require('./test.json');
+    let data = track[res];
     let center = Math.floor(waveform.height / 2);
-    let ratio = waveform.height / Math.pow(2, data.bits - 1);
+    let hratio = waveform.height / Math.pow(2, data.bits);
     let maxinc = data.length * 2 / waveform.width;
     let rate = data.sample_rate / data.samples_per_pixel;
     let inc = maxinc / zoom;
@@ -139,9 +163,16 @@ function renderWaveform() {
     let viewing = inc * waveform.width;
     let samples = data.data;
 
-    start = Math.floor((maxview - viewing) / 2 / 2);
+    start = Math.floor(maxview - viewing) / 2;
 
-    console.log('zoom:', zoom, 'viewing:', viewing, 'inc:', inc, 'start:', start);
+    console.log('---');
+    console.log(' zoom:', twoDecimals(zoom));
+    console.log(' res:', res);
+    console.log(' > start:', start);
+    console.log(' > inc:', twoDecimals(inc));
+    console.log(' > rate:', twoDecimals(rate));
+    console.log(' > viewing:', twoDecimals(viewing));
+    //console.log('zoom:', zoom, 'viewing:', viewing, 'inc:', inc, 'start:', start);
 
     let vals = [];
 
@@ -149,8 +180,8 @@ function renderWaveform() {
         let x = i;
         let i1 = Math.round((i * inc) + start);
         let i2 = i1 + 1;
-        let y1 = Math.round(samples[i1] * ratio);
-        let y2 = Math.round(samples[i2] * ratio);
+        let y1 = Math.round(samples[i1] * hratio);
+        let y2 = Math.round(samples[i2] * hratio);
         let h  = Math.abs(y1 - y2);
         let hh = Math.ceil(h/2);
         vals.push(hh);
@@ -175,8 +206,8 @@ function renderWaveform() {
     let timespace = waveform.width / 6;
     for (let i = 1; i < 6; i++) {
         let x = Math.floor(i * timespace);
-        let sample = Math.round((x * inc / 2) + start);
-        let time = Math.round(sample / rate * 100) / 100;
+        let sample = Math.round((x * inc / 2) + (start / 2));
+        let time = twoDecimals(sample / rate);
         if (time < 10) {
             time = '00:0' + time;
         }
@@ -192,19 +223,28 @@ function renderWaveform() {
         }).setContent('   |\n' + time);
     }
 
+    screen.render();
+
 }
 
 
 screen.key('z', function(ch, key) {
-    zoom = (zoom > 1) ? zoom / 1.25 : 1;
+    let z = zoom / 1.25;
+    zoom = (z > 1) ? z : 1;
     renderWaveform();
 });
 
 screen.key('x', function(ch, key) {
-    zoom = (zoom < 128) ? zoom * 1.25 : 128;
+    let z = zoom * 1.25;
+    zoom = (z < 128) ? z : 128;
     renderWaveform();
 });
 
 
 renderWaveform();
 screen.render();
+
+
+function twoDecimals(val) {
+    return Math.round(val * 100) / 100;
+}
