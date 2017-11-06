@@ -7,10 +7,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "app-root-dir": "1.0.2",
+    "app-root-path": "2.0.1",
     "blessed": "0.1.81",
+    "bufferutil": "3.0.3",
     "debounce": "1.1.0",
+    "get-pixels": "3.3.0",
     "lodash.throttle": "4.1.1",
-    "system-sleep": "1.3.6"
+    "rootpath": "0.1.2",
+    "system-sleep": "1.3.6",
+    "ws": "3.3.0"
   },
   "devDependencies": {
     "nodemon": "1.12.1",
