@@ -17,7 +17,7 @@ module.exports = {
         }
     },
     waveforms: {
-        zoomMultiplier: 1.25,
-        sampleResolution: 16
+        zoomMultiplier: 2,
+        sampleResolution: 16 // this shouldn't change
     }
 };

@@ -1,6 +1,15 @@
+let WebSocket = require('ws');
 let throttle = require('lodash.throttle');
 let blessed = require('blessed');
 let program = blessed.program();
+
+let waveformService = new WebSocket('ws://localhost:8911');
+let waveformServiceActive = false;
+
+waveformService.on('open', function open() {
+    waveformServiceActive = true;
+    renderWaveform();
+});
 
 let line;
 let test = 1;
@@ -126,117 +135,45 @@ let console = {
 let zoom = 1;
 let start = 0;
 
-let track = {
-    16: require('./test-16.json'),
-    24: require('./test-24.json'),
-    32: require('./test-32.json'),
-    64: require('./test-64.json'),
-    128: require('./test-128.json')
-};
-
 function renderWaveform() {
-
-    let rows = new Array(waveform.height).fill(new Array(waveform.width).fill(0));
-
-    let res = 0;
-
-    if (zoom < 8) {
-        res = 128;
-    } else if (zoom < 24) {
-        res = 64;
-    } else if (zoom < 64) {
-        res = 32;
-    } else if (zoom < 96) {
-        res = 24;
-    } else if (zoom >= 96) {
-        res = 16;
-    }
-
-    let content = "";
-    let data = track[res];
-    let center = Math.floor(waveform.height / 2);
-    let hratio = waveform.height / Math.pow(2, data.bits);
-    let maxinc = data.length * 2 / waveform.width;
-    let rate = data.sample_rate / data.samples_per_pixel;
-    let inc = maxinc / zoom;
-    let maxview = maxinc * waveform.width;
-    let viewing = inc * waveform.width;
-    let samples = data.data;
-
-    start = Math.floor(maxview - viewing) / 2;
-
-    console.log('---');
-    console.log(' zoom:', twoDecimals(zoom));
-    console.log(' res:', res);
-    console.log(' > start:', start);
-    console.log(' > inc:', twoDecimals(inc));
-    console.log(' > rate:', twoDecimals(rate));
-    console.log(' > viewing:', twoDecimals(viewing));
-    //console.log('zoom:', zoom, 'viewing:', viewing, 'inc:', inc, 'start:', start);
-
-    let vals = [];
-
-    for (let i = 0; i < waveform.width; i++) {
-        let x = i;
-        let i1 = Math.round((i * inc) + start);
-        let i2 = i1 + 1;
-        let y1 = Math.round(samples[i1] * hratio);
-        let y2 = Math.round(samples[i2] * hratio);
-        let h  = Math.abs(y1 - y2);
-        let hh = Math.ceil(h/2);
-        vals.push(hh);
-    }
-
-    for (let r = 0; r < waveform.height; r++) {
-        for (let c = 0; c < waveform.width; c++) {
-            let v = vals[c];
-            if (r < center) {
-                content += (v >= (center - r)) ? '│' : ' ';
-            } else if (r === center) {
-                content += (v > 0) ? '│' : '·';
-            } else if (r > center) {
-                content += (v >= (r - center)) ? '│' : ' ';
-            }
-        }
-        content += '\n';
-    }
-
-    waveform.setContent(content);
-
-    let timespace = waveform.width / 6;
-    for (let i = 1; i < 6; i++) {
-        let x = Math.floor(i * timespace);
-        let sample = Math.round((x * inc / 2) + (start / 2));
-        let time = twoDecimals(sample / rate);
-        if (time < 10) {
-            time = '00:0' + time;
-        }
-        blessed.text({
-            parent: timescale,
-            left: x - 3,
-            top: -1,
-            height: 3,
-            align: 'center',
-            style: {
-                fg: '#888'
-            }
-        }).setContent('   |\n' + time);
-    }
-
-    screen.render();
-
+    if (!waveformServiceActive) { return; }
+    waveformService.send(JSON.stringify({
+        type: 'fetch',
+        width: waveform.width,
+        height: waveform.height,
+        file: 'test.wav',
+        start: start,
+        zoom: zoom
+    }));
 }
 
+waveformService.on('message', msg => {
+    let data = JSON.parse(msg);
+    if (data.type === 'fetch') {
+        waveform.setContent(data.waveform);
+        screen.render();
+    }
+});
+
+screen.key('n', function(ch, key) {
+    start = (start > 0) ? start - 10 : 0;
+    renderWaveform();
+});
+
+screen.key('m', function(ch, key) {
+    if (zoom === 1) { return; }
+    start += 10;
+    renderWaveform();
+});
 
 screen.key('z', function(ch, key) {
-    let z = zoom / 1.25;
-    zoom = (z > 1) ? z : 1;
+    zoom = (zoom > 1) ? zoom - 1 : 1;
+    if (zoom === 1) { start = 0; }
     renderWaveform();
 });
 
 screen.key('x', function(ch, key) {
-    let z = zoom * 1.25;
-    zoom = (z < 128) ? z : 128;
+    zoom = (zoom < 22) ? zoom + 1 : 22;
     renderWaveform();
 });
 

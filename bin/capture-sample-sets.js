@@ -7,14 +7,14 @@ let settings = require('settings');
 
 let promises = [];
 let filename = process.argv[2];
-let program = path.join(settings.path.bin, 'capture-samples.js');
+let program = path.join(settings.path.bin, 'capture-sample-set.js');
 
 if (!filename) {
     console.log('Missing argument.  file');
     process.exit(1);
 }
 
-[16, 24, 32, 64, 128].forEach(zoom => {
+[8].forEach(zoom => {
     promises.push(new Promise((resolve, reject) => {
         let inst = spawn(program, [filename, zoom]);
         inst.on('close', code => {
