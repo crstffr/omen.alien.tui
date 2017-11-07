@@ -26,25 +26,31 @@ let zoom = 1;
 let calcZoom = 1;
 
 while (calcZoom < maxZoom) {
-
-    promises.push(new Promise((resolve, reject) => {
-        let inst = spawn(program, [width, height, filename, zoom]);
-        inst.on('close', code => {
-            resolve(code);
-        });
-    }));
-
+    promises.push(render(zoom));
     calcZoom = ++zoom * settings.waveforms.zoomMultiplier;
     infoData.maxZoom = zoom - 1;
 }
+
+promises.push(render('max'));
 
 promises.push(new Promise((resolve) => {
     fs.writeSync(fs.openSync(infoFile, 'w'), JSON.stringify(infoData));
     resolve();
 }));
 
-
 Promise.all(promises).then(() => {
     console.timeEnd('render');
     process.exit();
 });
+
+function render(zoom) {
+    return new Promise((resolve, reject) => {
+        let inst = spawn(program, [width, height, filename, zoom]);
+        inst.stderr.on('data', data => {
+            console.log(data.toString());
+        });
+        inst.on('close', code => {
+            resolve(code);
+        });
+    })
+}

@@ -23,10 +23,7 @@ let outFilename = [width, height, zoom].join('-') + '.png';
 let outFilepath = path.join(settings.path.user.waveforms, filename, 'png', outFilename);
 
 let maxZoom = info.maxWidth / (settings.waveforms.zoomMultiplier * width);
-
-if (zoom === 'max') {
-    zoom = maxZoom;
-}
+zoom = (zoom === 'max') ? maxZoom : zoom;
 
 if (zoom > maxZoom) {
     console.log('Exceeds maximum zoom of', Math.floor(maxZoom));

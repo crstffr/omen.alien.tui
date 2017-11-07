@@ -22,7 +22,18 @@ let infoFile = path.join(settings.path.user.samples, filename, 'info.json');
 let infoData = require(infoFile);
 
 for (let zoom = 1; zoom <= infoData.maxZoom; zoom++) {
-    promises.push(new Promise((resolve, reject) => {
+    promises.push(render(zoom));
+}
+
+promises.push(render('max'));
+
+Promise.all(promises).then(() => {
+    console.timeEnd('render');
+    process.exit();
+});
+
+function render(zoom) {
+    return new Promise((resolve, reject) => {
         let inst = spawn(program, [width, height, filename, zoom]);
         inst.stderr.on('data', data => {
             console.log(data.toString());
@@ -30,10 +41,5 @@ for (let zoom = 1; zoom <= infoData.maxZoom; zoom++) {
         inst.on('close', code => {
             resolve(code);
         });
-    }));
+    });
 }
-
-Promise.all(promises).then(() => {
-    console.timeEnd('render');
-    process.exit();
-});

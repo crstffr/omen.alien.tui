@@ -12,8 +12,10 @@
     "blessed": "0.1.81",
     "bufferutil": "3.0.3",
     "debounce": "1.1.0",
+    "figlet": "1.2.0",
     "get-pixels": "3.3.0",
     "lodash.throttle": "4.1.1",
+    "measured": "1.1.0",
     "rootpath": "0.1.2",
     "system-sleep": "1.3.6",
     "ws": "3.3.0"

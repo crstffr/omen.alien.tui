@@ -8,7 +8,7 @@ let user = path.join(root, 'userdata') + '/';
 module.exports = {
     path: {
         root: root + '/',
-        bin: path.join(root, 'bin') + '/',
+        bin: path.join(root, 'cmd') + '/',
         user: {
             root: user,
             audio: path.join(user, 'audio') + '/',
