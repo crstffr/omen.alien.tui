@@ -1,52 +1,40 @@
-
+import settings from '../settings';
 import StateMachine from 'javascript-state-machine';
+import {RouterService} from './service/RouterService';
 import {ViewService, views} from './service/ViewService';
 
 // Views
-import {SplashView} from './view/Splash/SplashView'
-import {ScopeView} from './view/Scope/ScopeView'
+import {Console} from './component/Console/Console'
 
-import {console} from './util/console';
+import {SplashView} from './view/Splash/SplashView';
+import {ScopeView} from './view/Scope/ScopeView';
+import {RecorderView} from './view/Recorder/RecorderView';
+import {EditorView} from './view/Editor/EditorView';
+import {MapView} from './view/Map/MapView';
+
 import {screen} from './inst/screen';
+import {console} from './util/console';
 
-let settings = require('../settings');
 process.title = 'Omen Alien';
 
 ViewService.push('Splash', new SplashView());
 ViewService.push('Scope', new ScopeView());
+ViewService.push('Recorder', new RecorderView());
+ViewService.push('Editor', new EditorView());
+ViewService.push('Map', new MapView());
 
+RouterService.openSplash();
 
-let fsm = new StateMachine({
-    init: 'Splash',
-    transitions: [
-        {name: 'openScope',     from: '*',  to: 'Scope'},
-        {name: 'openRecorder',  from: '*',  to: 'Recorder'},
-        {name: 'openPlayer',    from: '*',  to: 'Player'},
-        {name: 'openEditor',    from: '*',  to: 'Editor'},
-        {name: 'openFiles',     from: '*',  to: 'Files'}
-    ],
-    methods: {
-        onLeaveState: state => {
-            if (state.from !== 'none') {
-                if (views[state.from]) {
-                    views[state.from].hide();
-                    console.log('hide', state.from)
-                }
-            }
-        },
-        onEnterState: state => {
-            if (state.to !== 'none') {
-                if (views[state.to]) {
-                    views[state.to].show();
-                    screen.render();
-                }
-            }
-        }
+screen.on('keypress', (a, b) => {
+    switch (b.name) {
+        case 'escape':
+
+            break;
+        case 'tab':
+            Console.toggle();
+            break;
     }
 });
-
-// Slice off the first transition (init not needed).
-let transitions = fsm.allTransitions().slice(1);
 
 screen.key(['C-c', 'q'], () => {
     screen.destroy();
@@ -54,8 +42,8 @@ screen.key(['C-c', 'q'], () => {
 });
 
 screen.key([1,2,3,4,5], key => {
-    let transition = transitions[key - 1];
-    if (fsm[transition]) {
-        fsm[transition]();
+    let transition = RouterService.allTransitions()[Number(key) - 1];
+    if (RouterService[transition]) {
+        RouterService[transition]();
     }
 });

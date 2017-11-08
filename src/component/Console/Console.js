@@ -1,28 +1,34 @@
+import Figlet from 'figlet';
+import {Component} from '../Component';
+import {container} from '../../inst/screen';
+import {trim, dimensions} from '../../util/String/String';
 
-import {container, tui, screen} from '../../inst/screen';
+class ConsoleView extends Component {
+    constructor () {
+        super();
 
-export let ConsoleView = tui.log({
-    parent: container,
-    scrollable: true,
-    scrollOnInput: true,
-    label: 'CONSOLE',
-    top: 0,
-    left: 0,
-    width: '30%',
-    height: '100%-2',
-    border: {
-        type: 'line',
-        fg: 'white'
+        this.box = this.tui.log({
+            parent: container,
+            scrollOnInput: true,
+            transparent: true,
+            scrollable: true,
+            label: 'CONSOLE',
+            top: 0,
+            left: 0,
+            width: '30%',
+            height: '100%-2',
+            border: {
+                type: 'line',
+                fg: 'white'
+            }
+        });
+
+        this.box.on('show', foo => {
+            this.box.setFront();
+        });
+
+        this.hide();
     }
-});
+}
 
-ConsoleView.hide();
-
-tui.key('`', () => {
-    ConsoleView.toggle();
-    tui.render();
-});
-
-ConsoleView.on('show', foo => {
-    ConsoleView.setFront();
-});
+export let Console = new ConsoleView();

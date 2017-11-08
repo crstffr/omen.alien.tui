@@ -1,6 +1,6 @@
 import {console} from '../console';
 
-export function strDimensions(str) {
+export function dimensions(str) {
     let lines = str.split('\n');
     return {
         w: longestLine(lines),
@@ -18,13 +18,13 @@ export function longestLine(lines) {
     return len;
 }
 
-export function trimBlankRight(str) {
+export function trimRight(str) {
     return str.replace(/\s*$/, '');
 }
 
-export function trimBlanks(str) {
+export function trim(str) {
     return str.split('\n').map(line => {
-        return trimBlankRight(line);
+        return trimRight(line);
     }).filter(line => {
         return line.length;
     }).join('\n');

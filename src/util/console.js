@@ -1,4 +1,4 @@
-import {ConsoleView} from '../component/Console/Console';
+import {Console} from '../component/Console/Console';
 
 export let console = {
     log: (...args) => {
@@ -9,6 +9,6 @@ export let console = {
             }
             content += val + " ";
         });
-        ConsoleView.add(content);
+        Console.box.add(content);
     }
 };

@@ -1,18 +1,18 @@
 import {View} from '../View';
 import {Text} from '../../component/Text/Text';
 import {MenuRow} from '../../component/MenuRow/MenuRow';
-import {console} from '../../util/console';
 
-export class SplashView extends View {
+export class MapView extends View {
     constructor () {
         super();
 
         this.logo = new Text(this.box, {
-            val: 'A L I E N',
+            val: 'M A P',
             font: 'Bloody',
-            color: 'light green'
+            color: 'light magenta'
         });
 
-        this.menu = new MenuRow(this.box, ['SCOPE', 'RECORD', 'EDIT', 'ASSIGN']);
+        this.menu = new MenuRow(this.box, ['-', '-', '-', '-']);
+
     }
 }
